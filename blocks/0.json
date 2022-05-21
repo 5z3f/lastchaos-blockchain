@@ -1,0 +1,21 @@
+{
+    "index": 0,
+    "hash": "4c43802ef25a3f0308bf66d64c5373e9bf8188ae3304068c71a66587383ceb7d",
+    "prevhash": 0,
+    "proof": 7301,
+    "transactions": [
+        {
+            "hash": "374a9e641afb767883de0145ff0f53fbbb919bea053418c4f3a65da1056855a0",
+            "sender": null,
+            "recipient": "1Jv9gzvm5SAbvk1EtUXbk2UfsNWjzG8utN",
+            "data": {
+                "type": "standard",
+                "entity": "gold",
+                "amount": 1000000,
+                "data": null
+            },
+            "timestamp": 1653116664.8711686
+        }
+    ],
+    "timestamp": 1653116674.8808763
+}
