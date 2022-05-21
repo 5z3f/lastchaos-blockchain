@@ -15,7 +15,7 @@ class block:
     def generate_hash(self):
         hash = sha256(self.__str__().encode()).hexdigest()
 
-        # while hash not starts with 4c43
+        # block hash must start with '4c43' (LC) to be valid
         while hash[:4] != '4c43':
             self.proof += 1
             hash = sha256(self.__str__().encode()).hexdigest()
