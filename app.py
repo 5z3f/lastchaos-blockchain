@@ -144,8 +144,8 @@ def main():
     thread.start()
     
     # create genesis block and test transactions
-    thread = threading.Thread(target=test_transactions, daemon=True)
-    thread.start()
+    # thread = threading.Thread(target=test_transactions, daemon=True)
+    # thread.start()
 
     app.config['JSON_SORT_KEYS'] = False
     app.run(host='127.0.0.1', port=4444)
