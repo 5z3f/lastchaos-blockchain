@@ -1,5 +1,6 @@
 __author__          = 'agsvn'
 
+import sys
 import threading
 
 from flask import Flask, jsonify, request
@@ -75,7 +76,7 @@ def test_transactions():
     wallet2 = wallet(privateKey='9893ea79001d4e24de2616b4e8f5e6d90941123b0147b8c6bda6b2fc70bce9ba')
 
     # mine genesis block and send 1.000.000 gold to wallet1
-    tx = transaction(sender=None, recipient=wallet1.address, data={
+    tx = transaction(sender='itself', recipient=wallet1.address, data={
         'type': 'standard',
         'entity': 'gold',
         'amount': 1000000,
@@ -153,6 +154,11 @@ def main():
     # thread = threading.Thread(target=test_transactions, daemon=True)
     # thread.start()
 
+    print('blockchain :: starting server...')
+
+    cli = sys.modules['flask.cli']
+    cli.show_server_banner = lambda *x: None
+    
     app.config['JSON_SORT_KEYS'] = False
     app.run(host='127.0.0.1', port=4444)
 
