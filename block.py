@@ -1,16 +1,21 @@
 __author__          = 'agsvn'
 
+import json
+
 from time import time
 from hashlib import sha256
 
 class block:
     def __init__(self, index, prevhash, transactions, timestamp=None, proof=0, hash=''):
         self.index = index
-        self.hash = hash
         self.prevhash = prevhash
+        self.hash = hash
         self.transactions = transactions
         self.timestamp = timestamp or time()
         self.proof = proof
+
+    def __str__(self):
+        return f"{ self.index }:{ self.prevhash }:{ json.dumps(self.transactions) }:{ self.timestamp }:{ self.proof }"
 
     def generate_hash(self):
         hash = sha256(self.__str__().encode()).hexdigest()
@@ -23,16 +28,12 @@ class block:
         self.hash = hash
         return (self.proof, hash)
 
-
-    def __str__(self):
-        return f"{ self.index }:{ self.prevhash }:{ self.proof }:{ self.transactions }:{ self.timestamp }:{ self.proof }"
-
     def dictify(self):
         return {
             'index': self.index,
-            'hash': self.hash,
             'prevhash': self.prevhash,
+            'hash': self.hash,
             'proof': self.proof,
             'transactions': self.transactions,
-            'timestamp': self.timestamp,
+            'timestamp': self.timestamp
         }

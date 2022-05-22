@@ -1,21 +1,22 @@
 {
     "index": 0,
-    "hash": "4c43802ef25a3f0308bf66d64c5373e9bf8188ae3304068c71a66587383ceb7d",
     "prevhash": 0,
-    "proof": 7301,
+    "hash": "4c430c39887302bf31436e8dc4d5a82cdcd2c6fef4677353ae6644919797d029",
+    "proof": 60325,
     "transactions": [
         {
-            "hash": "374a9e641afb767883de0145ff0f53fbbb919bea053418c4f3a65da1056855a0",
+            "txid": "6b8a05a6dd81a495b6b7155c3af5c41c5ca4d1d54054114376f775c2c5f17dea",
             "sender": null,
-            "recipient": "1Jv9gzvm5SAbvk1EtUXbk2UfsNWjzG8utN",
+            "recipient": "lc1NL4s5cguoPXS8PLNSnMDvLPR1sBpWBbdr",
             "data": {
                 "type": "standard",
                 "entity": "gold",
-                "amount": 1000000,
-                "data": null
+                "amount": 1000000
             },
-            "timestamp": 1653116664.8711686
+            "publicKey": null,
+            "signature": null,
+            "timestamp": 1653204587.9695325
         }
     ],
-    "timestamp": 1653116674.8808763
+    "timestamp": 1653204595.959039
 }

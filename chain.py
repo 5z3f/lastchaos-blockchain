@@ -7,6 +7,7 @@ from time import sleep
 
 from block import *
 from wallet import *
+from transaction import *
 
 class chain:
     def __init__(self):
@@ -39,8 +40,24 @@ class chain:
         files = [f for f in os.listdir(self.blocks_directory) if f.endswith('.json')]
         for f in files:
             with open(f'{ self.blocks_directory }/{ f }', 'r') as f:
-                data = json.load(f)
-                self.blocks.append(data)
+                try:
+                    data = json.load(f)
+                    self.blocks.append(data)
+                except:
+                    pass
+
+    def find(self, type, id):
+        match type:
+            case 'block':
+                return block(**self.blocks[id])
+            case 'transaction':
+                for tx in self.current_transactions:
+                    if tx['txid'] == id:
+                        return transaction(**tx)
+                for _block in self.blocks:
+                    for tx in _block['transactions']:
+                        if tx['txid'] == id:
+                            return transaction(**tx)
                 
     def add(self, type, data=None):
         match type:
@@ -70,19 +87,23 @@ class chain:
             case 'transaction':
                 tx = data
 
-                if tx.data['entity'] == 'gold' and wallet.balance(self, tx.sender) < tx.data['amount'] and tx.sender != None:
-                    return { 'success': False, 'message': 'sender has insufficient funds' }
+                if tx.sender != None:
+                    if not wallet.verify(publicKey=tx.publicKey, signature=tx.signature, message=tx.message()):
+                        return {'success': False, 'message': 'could not verify transaction (invalid signature)' }
+
+                    if tx.data['entity'] == 'gold' and wallet.balance(chain=self, address=tx.sender) < tx.data['amount']:
+                        return { 'success': False, 'message': 'sender has insufficient funds' }
                 
-                self.current_transactions.append(data.dictify())
-                return { 'success': True, 'message': 'transaction added', 'tx': data.dictify() }
+                self.current_transactions.append(tx.dictify())
+                return { 'success': True, 'message': 'transaction added', 'tx': tx.dictify() }
     
     def validate(self):
         for i in range(1, len(self.blocks)):
-            previous_block = block(**self.blocks[i - 1])
-            current_block = block(**self.blocks[i])
-
-            (_, current_block_generated_hash) = current_block.generate_hash()
-            if (current_block.prevhash != previous_block.hash) or (current_block.hash != current_block_generated_hash):
+            previousBlock = block(**self.blocks[i - 1])
+            currentBlock = block(**self.blocks[i])
+            
+            currentBlockHash = sha256(str(currentBlock).encode()).hexdigest()
+            if (currentBlock.prevhash != previousBlock.hash) or (currentBlock.hash != currentBlockHash):
                 return False
         return True
 
