@@ -96,11 +96,11 @@ add transaction to pending transactions
 		// sign(privateKey, message=sha256("senderAddress:receiverAddress:json(data)"))
 		"signature": "42de532cd2b6d7395bb9d2c4a76b6e3c6c0d338aeafeb3d62dc79e3ffcc80f355748f84af0bb48ecd95a1a364672e998f15e6d07da835fed2469dbb9f4073aa0"
 	},
-    "recipient": "lc1NbwD67HEaRcbrJHczmY5XeR1QGpLy6b9",  // receiver wallet address
+    "recipient": "lc1NbwD67HEaRcbrJHczmY5XeR1QGpLy6b9",	// receiver wallet address
     "data": {
-        "type": "standard",								// not used yet
-        "entity": "gold",								// gold / item
-        "amount": 200000
+        "type": "standard",	// not used yet
+        "entity": "gold",	// gold / item
+        "amount": 550000
     }
 }
 ```
@@ -111,16 +111,17 @@ add transaction to pending transactions
 	"success": true,
 	"message": "transaction added",
 	"tx": {
-		"hash": "5a794492081b9b0f71e09ae833faf224c10609a1995a81d91f675c307ddd3f07",
-		"sender": "16BYanz2meY7Detwd2gs43j1ifhsGZwW3D",
-		"recipient": "1Jv9gzvm5SAbvk1EtUXbk2UfsNWjzG8utN",
+		"txid": "14d13056bf028b35003274e0a1d77fc33eef584bee50942cf6069b50e47a595c",
+		"sender": "lc1NL4s5cguoPXS8PLNSnMDvLPR1sBpWBbdr",
+		"recipient": "lc1NbwD67HEaRcbrJHczmY5XeR1QGpLy6b9",
 		"data": {
 			"type": "standard",
 			"entity": "gold",
-			"amount": 55555,
-			"data": null
+			"amount": 550000
 		},
-		"timestamp": 1653116062.4855871
+		"publicKey": "1ee1808321d18b73b3979ab3cc1604b5471606bfa297c48eb5a7f5e70a79dbff5a114dbaccf7616fb4b1aa724ac5ba1613b249af0a31e8240e1736b14cc5628d",
+		"signature": "42de532cd2b6d7395bb9d2c4a76b6e3c6c0d338aeafeb3d62dc79e3ffcc80f355748f84af0bb48ecd95a1a364672e998f15e6d07da835fed2469dbb9f4073aa0",
+		"timestamp": 1653204598.9890165
 	}
 }
 ```
