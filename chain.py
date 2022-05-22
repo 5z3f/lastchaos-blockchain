@@ -120,6 +120,10 @@ class chain:
                     if not wallet.verify(publicKey=tx.publicKey, signature=tx.signature, message=tx.message()):
                         return {'success': False, 'message': 'could not verify transaction (invalid signature)' }
 
+                    # verify that the sender address matches the address derived with public key
+                    if wallet.create_address(publicKey=tx.publicKey) != tx.sender:
+                        return {'success': False, 'message': 'could not verify transaction (invalid sender address)' }
+
                     if tx.data['entity'] == 'gold' and wallet.balance(chain=self, address=tx.sender) < tx.data['amount']:
                         return { 'success': False, 'message': 'sender has insufficient funds' }
                 

@@ -124,8 +124,8 @@ def test_transactions():
         'amount': 153293,
     })
 
-    tx.publicKey = wallet1.publicKey
-    tx.signature = wallet1.sign(tx.message())
+    tx.publicKey = wallet2.publicKey
+    tx.signature = wallet2.sign(tx.message())
 
     response = blockchain.add(type='transaction', data=tx)
     print(response)
@@ -137,8 +137,8 @@ def test_transactions():
         'amount': 200000
     })
 
-    tx.publicKey = wallet1.publicKey
-    tx.signature = wallet1.sign(tx.message())
+    tx.publicKey = wallet2.publicKey
+    tx.signature = wallet2.sign(tx.message())
 
     response = blockchain.add(type='transaction', data=tx)
     print(response)
