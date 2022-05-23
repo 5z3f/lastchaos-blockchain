@@ -4,7 +4,7 @@ import sys
 import threading
 
 from flask import Flask, jsonify, request
-from time import sleep
+from time import time, sleep
 
 from chain import *
 from wallet import *
@@ -13,6 +13,7 @@ from transaction import *
 blockchain = chain()
 blockchain.options['name'] = 'mainnet'
 blockchain.options['create_block_every'] = 10 # s
+blockchain.options['binary'] = True
 
 app = Flask(__name__)
 
@@ -66,9 +67,17 @@ def route_tx_add():
 def route_wallet_generate():
     return wallet.generate()
 
-@app.route('/wallet/balance/<address>', methods=['GET'])
+@app.route('/wallet/<address>', methods=['GET'])
+def route_wallet(address):
+    return jsonify(wallet.search(chain=blockchain, address=address))
+
+@app.route('/wallet/<address>/balance', methods=['GET'])
 def route_wallet_balance(address):
-    return jsonify({ 'type': 'gold', 'balance': wallet.balance(chain=blockchain, address=address) })
+    return wallet.balance(chain=blockchain, address=address)
+
+@app.route('/wallet/<address>/inventory', methods=['GET'])
+def route_wallet_inventory(address):
+    return jsonify(wallet.inventory(chain=blockchain, address=address))
 
 def test_transactions():
     # initialize wallets from private keys
@@ -76,8 +85,8 @@ def test_transactions():
     wallet2 = wallet(privateKey='9893ea79001d4e24de2616b4e8f5e6d90941123b0147b8c6bda6b2fc70bce9ba')
 
     # mine genesis block and send 1.000.000 gold to wallet1
-    tx = transaction(sender='itself', recipient=wallet1.address, data={
-        'type': 'standard',
+    tx = transaction(sender='genesis', recipient=wallet1.address, data={
+        'type': 'transfer',
         'entity': 'gold',
         'amount': 1000000,
     })
@@ -90,7 +99,7 @@ def test_transactions():
     
     # send 550.000 gold from wallet1 to wallet2
     tx = transaction(sender=wallet1.address, recipient=wallet2.address, data={
-        'type': 'standard',
+        'type': 'transfer',
         'entity': 'gold',
         'amount': 550000,
     })
@@ -103,7 +112,7 @@ def test_transactions():
 
     # send 200.000 gold from wallet1 to wallet2
     tx = transaction(sender=wallet1.address, recipient=wallet2.address, data={
-        'type': 'standard',
+        'type': 'transfer',
         'entity': 'gold',
         'amount': 200000,
     })
@@ -119,7 +128,7 @@ def test_transactions():
 
     # send 153.293 gold from wallet2 to wallet1
     tx = transaction(sender=wallet2.address, recipient=wallet1.address, data={
-        'type': 'standard',
+        'type': 'transfer',
         'entity': 'gold',
         'amount': 153293,
     })
@@ -132,13 +141,84 @@ def test_transactions():
 
     # send 200.000 gold from wallet2 to wallet1
     tx = transaction(sender=wallet2.address, recipient=wallet1.address, data={
-        'type': 'standard',
+        'type': 'transfer',
         'entity': 'gold',
         'amount': 200000
     })
 
     tx.publicKey = wallet2.publicKey
     tx.signature = wallet2.sign(tx.message())
+
+    response = blockchain.add(type='transaction', data=tx)
+    print(response)
+
+
+    # generate 1.000 cash and send it to wallet1
+    tx = transaction(sender='genesis', recipient=wallet1.address, data={
+        'type': 'transfer',
+        'entity': 'cash',
+        'amount': 1000,
+    })
+    
+    response = blockchain.add(type='transaction', data=tx)
+    print(response)
+
+    # send 200 cash from wallet1 to wallet 2
+    tx = transaction(sender=wallet1.address, recipient=wallet2.address, data={
+        'type': 'transfer',
+        'entity': 'cash',
+        'amount': 200,
+    })
+
+    tx.publicKey = wallet1.publicKey
+    tx.signature = wallet1.sign(tx.message())
+
+    response = blockchain.add(type='transaction', data=tx)
+    print(response)
+
+    # generate item and send it to wallet1
+    item = {
+        'id': 614, # Conqueror Dual Sword
+        'uid': 'a582d7a7-b47b-47f7-804e-ecab4ee29526', # unique id
+        'source': {
+            'type': 'monster',
+            'id': 64, # Ghoul
+            'localization': 9, # Procyon
+            'timestamp': int(time() * 1000.0)
+        }
+    }
+
+    tx = transaction(sender='genesis', recipient=wallet1.address, data={
+        'type': 'transfer',
+        'entity': 'item',
+        'amount': 1,
+        'data': item
+    })
+
+    response = blockchain.add(type='transaction', data=tx)
+    print(response)
+
+    # send the same item to wallet2
+    item = {
+        'id': 614, # Conqueror Dual Sword
+        'uid': 'a582d7a7-b47b-47f7-804e-ecab4ee29526', # unique id
+        'source': {
+            'type': 'player',
+            'id': 1,
+            'localization': 0, # Juno
+            'timestamp': int(time() * 1000.0)
+        }
+    }
+    
+    tx = transaction(sender=wallet1.address, recipient=wallet2.address, data={
+        'type': 'transfer',
+        'entity': 'item',
+        'amount': 1,
+        'data': item
+    })
+
+    tx.publicKey = wallet1.publicKey
+    tx.signature = wallet1.sign(tx.message())
 
     response = blockchain.add(type='transaction', data=tx)
     print(response)

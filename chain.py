@@ -116,7 +116,7 @@ class chain:
             case 'transaction':
                 tx = data
 
-                if tx.sender != 'itself':
+                if tx.sender != 'genesis':
                     if not wallet.verify(publicKey=tx.publicKey, signature=tx.signature, message=tx.message()):
                         return {'success': False, 'message': 'could not verify transaction (invalid signature)' }
 
@@ -124,8 +124,16 @@ class chain:
                     if wallet.create_address(publicKey=tx.publicKey) != tx.sender:
                         return {'success': False, 'message': 'could not verify transaction (invalid sender address)' }
 
-                    if tx.data['entity'] == 'gold' and wallet.balance(chain=self, address=tx.sender) < tx.data['amount']:
-                        return { 'success': False, 'message': 'sender has insufficient funds' }
+                    if tx.data['type'] == 'transfer':
+                        if tx.data['amount'] < 0:
+                            return {'success': False, 'message': 'could not verify transaction (invalid amount)' }
+
+                        if tx.data['entity'] == 'gold' or tx.data['entity'] == 'cash':                            
+                            if tx.data['amount'] > wallet.balance(chain=self, address=tx.sender)[tx.data['entity']]:
+                                return {'success': False, 'message': 'could not verify transaction (insufficient funds)' }
+                        elif tx.data['entity'] == 'item':
+                            if not wallet.hasItem(chain=self, address=tx.sender, uid=tx.data['data']['uid']):
+                                return { 'success': False, 'message': 'could not verify transaction (sender does not have that item)' }
                 
                 self.current_transactions.append(tx.dictify())
                 return { 'success': True, 'message': 'transaction added', 'tx': tx.dictify() }

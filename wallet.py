@@ -55,22 +55,73 @@ class wallet:
             return False
 
     @staticmethod
-    def balance(chain, address):
-        balance = 0
+    def search(chain, address, type=None):
+        transactions = []
 
+        if address == 'genesis':
+            return transactions
+
+        # iterate through all blocks in the chain
         for block in chain.blocks:
             for tx in block['transactions']:
-                if tx['data']['entity'] == 'gold':
-                    if tx['sender'] == address:
-                        balance -= tx['data']['amount']
-                    elif tx['recipient'] == address:
-                        balance += tx['data']['amount']
+                if tx['sender'] == address or tx['recipient'] == address:
+                    if tx['data']['type'] == type or type is None:
+                        transactions.append(tx)
 
+        # iterate through all pending transactions
         for tx in chain.current_transactions:
-            if tx['data']['entity'] == 'gold':
-                if tx['sender'] == address:
-                    balance -= tx['data']['amount']
-                elif tx['recipient'] == address:
-                    balance += tx['data']['amount']
+            if tx['sender'] == address or tx['recipient'] == address:
+                if tx['data']['type'] == type or type is None:
+                    transactions.append(tx)
 
-        return balance
+        return transactions
+
+    @staticmethod
+    def balance(chain, address):
+        currencies = {
+            'gold': 0,
+            'cash': 0
+        }
+
+        if address == 'genesis':
+            return currencies
+
+        txs = wallet.search(chain, address, 'transfer')
+
+        for tx in txs:
+            if tx['data']['entity'] in currencies.keys():
+                if tx['sender'] == address:
+                    currencies[tx['data']['entity']] -= tx['data']['amount']
+                elif tx['recipient'] == address:
+                    currencies[tx['data']['entity']] += tx['data']['amount']
+
+        return currencies
+
+    @staticmethod
+    def inventory(chain, address):
+        inventory = []
+
+        txs = wallet.search(chain, address, 'transfer')
+
+        for tx in txs:
+            txData = tx['data']
+            if tx['data']['entity'] == 'item':
+                if tx['recipient'] == address:
+                    inventory.append(txData['data'])
+                elif tx['sender'] == address:
+                    for item in inventory:
+                        if item['uid'] == txData['data']['uid']:
+                            inventory.remove(item)
+                            break
+
+        return inventory
+
+    @staticmethod
+    def hasItem(chain, address, uid):
+        inventory = wallet.inventory(chain, address)
+
+        for item in inventory:
+            if item['uid'] == uid:
+                return True
+
+        return False
