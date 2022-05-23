@@ -127,9 +127,9 @@ add transaction to pending transactions
 ##### response 
 ```json
 {
-	"success": true,
-	"message": "transaction added",
-	"tx": {
+  "success": true,
+  "message": "transaction added",
+  "tx": {
     "txid": "972decd5fcde135fda31cd6b451d6bfc5de56d8f7035a8820ec4688c6111797a",
     "sender": "lc1NL4s5cguoPXS8PLNSnMDvLPR1sBpWBbdr",
     "recipient": "lc1NbwD67HEaRcbrJHczmY5XeR1QGpLy6b9",
@@ -151,9 +151,9 @@ generate new wallet
 ##### response
 ```json
 {
-	"private_key": "85175d1ce944c01e44afcdbaf49c840cabc72974c741aecfbfa249a41f67b185",
-	"public_key": "1ee1808321d18b73b3979ab3cc1604b5471606bfa297c48eb5a7f5e70a79dbff5a114dbaccf7616fb4b1aa724ac5ba1613b249af0a31e8240e1736b14cc5628d",
-	"address": "lc1NL4s5cguoPXS8PLNSnMDvLPR1sBpWBbdr"
+  "private_key": "85175d1ce944c01e44afcdbaf49c840cabc72974c741aecfbfa249a41f67b185",
+  "public_key": "1ee1808321d18b73b3979ab3cc1604b5471606bfa297c48eb5a7f5e70a79dbff5a114dbaccf7616fb4b1aa724ac5ba1613b249af0a31e8240e1736b14cc5628d",
+  "address": "lc1NL4s5cguoPXS8PLNSnMDvLPR1sBpWBbdr"
 }
 ```
 
