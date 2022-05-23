@@ -6,10 +6,9 @@
 - chain validation
 - binary/plain (json) block mode
 - wallet
-  - generate new wallet
+  - generate
   - sign/verify transaction
-  - check for currency balance (gold, cash), inventory items
-  - inventory
+  - check for currency balance (gold, cash) and inventory items
 
 # Routes
 ### `GET /chain`
