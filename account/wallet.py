@@ -6,13 +6,28 @@ import hashlib
 import base58
 
 class wallet:
-    def __init__(self, privateKey):
+    def __init__(self, privateKey, chain=None):
         self.privateKey = privateKey
         self.publicKey = ecdsa.SigningKey.from_string(bytes.fromhex(privateKey), curve=ecdsa.SECP256k1).get_verifying_key().to_string().hex()
         self.address = self.create_address(self.publicKey)
 
+        self.chain = chain
+
+        self.portfolio = {
+            'currencies': {
+                'gold': 0,
+                'cash': 0
+            },
+            'inventory': []
+        }
+
     def __str__(self):
         return f"{ self.privateKey }:{ self.publicKey }:{ self.address }"
+
+    def assets(self):
+        self.portfolio['currencies'] = wallet.balance(chain=self.chain, address=self.address)
+        self.portfolio['inventory'] = wallet.inventory(chain=self.chain, address=self.address)
+        return self.portfolio
 
     @staticmethod
     def generate(entropy=None):
@@ -110,18 +125,18 @@ class wallet:
                     inventory.append(txData['data'])
                 elif tx['sender'] == address:
                     for item in inventory:
-                        if item['uid'] == txData['data']['uid']:
+                        if item['uuid'] == txData['data']['uuid']:
                             inventory.remove(item)
                             break
 
         return inventory
 
     @staticmethod
-    def hasItem(chain, address, uid):
+    def hasItem(chain, address, uuid):
         inventory = wallet.inventory(chain, address)
 
         for item in inventory:
-            if item['uid'] == uid:
+            if item['uuid'] == uuid:
                 return True
 
         return False

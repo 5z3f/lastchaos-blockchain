@@ -5,9 +5,9 @@ import json
 
 from time import sleep
 
-from block import *
-from wallet import *
-from transaction import *
+from blockchain.block import *
+from account.wallet import *
+from blockchain.transaction import *
 
 from lib.binary import BinaryReader
 
@@ -100,8 +100,8 @@ class chain:
                 if self.options['binary']:
                     # save block to file as binary
                     with open(f'./blocks/{ newBlock.index }.bin', 'wb') as f:
-                        f.write(bytes(newBlock))
-                
+                        blockBytes = bytes(newBlock)
+                        f.write(blockBytes)
                 else:
                     # save block to file as json
                     with open(f'./blocks/{ newBlock.index }.json', 'w') as f:
@@ -132,7 +132,7 @@ class chain:
                             if tx.data['amount'] > wallet.balance(chain=self, address=tx.sender)[tx.data['entity']]:
                                 return {'success': False, 'message': 'could not verify transaction (insufficient funds)' }
                         elif tx.data['entity'] == 'item':
-                            if not wallet.hasItem(chain=self, address=tx.sender, uid=tx.data['data']['uid']):
+                            if not wallet.hasItem(chain=self, address=tx.sender, uuid=tx.data['data']['uuid']):
                                 return { 'success': False, 'message': 'could not verify transaction (sender does not have that item)' }
                 
                 self.current_transactions.append(tx.dictify())

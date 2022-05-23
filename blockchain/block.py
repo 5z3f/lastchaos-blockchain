@@ -6,7 +6,7 @@ from time import time
 from hashlib import sha256
 
 from lib.binary import BinaryWriter
-from transaction import *
+from blockchain.transaction import *
 
 class block:
     def __init__(self, index, prevhash, transactions, timestamp=None, proof=0, hash=''):
@@ -29,7 +29,8 @@ class block:
         bw.WriteInt32(self.proof)
         bw.WriteInt32(len(self.transactions))
         for tx in self.transactions:
-            bw.WriteBytes(bytes(transaction(**tx)))
+            txBytes = bytes(transaction(**tx))
+            bw.WriteBytes(txBytes)
         bw.WriteInt64(self.timestamp)
         return bytes(bw)
     
@@ -43,7 +44,8 @@ class block:
 
         txs = []
         for i in range(txCount):
-            txs.append(transaction.read(br).dictify())
+            tx = transaction.read(br).dictify()
+            txs.append(tx)
 
         timestamp = br.ReadInt64()
 

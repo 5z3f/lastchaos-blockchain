@@ -74,7 +74,7 @@ get block details by index
 ### `GET /tx/<txid>`
 get transaction details by transaction id
 
-##### payload
+##### response
 ```json
 {
     "txid": "972decd5fcde135fda31cd6b451d6bfc5de56d8f7035a8820ec4688c6111797a",
@@ -199,11 +199,15 @@ get all items in the inventory for given address
 [
   {
     "id": 614,
-    "uid": "a582d7a7-b47b-47f7-804e-ecab4ee29526",
+    "uuid": "a582d7a7-b47b-47f7-804e-ecab4ee29526",
     "source": {
       "type": "player",
       "id": 1,
-      "localization": 0,
+      "localization": {
+        "zone": 0,
+        "x": 644,
+        "y": 201,
+      },
       "timestamp": 1653272980888
     }
   }

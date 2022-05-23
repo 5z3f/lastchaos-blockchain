@@ -55,6 +55,10 @@ class BinaryWriter:
         self.WriteUInt16(len(value))
         self.WriteBytes(value.encode())
 
+    def WritePosition(self, value):
+        self.WriteInt32(value['x'])
+        self.WriteInt32(value['y'])
+
     def pack(self, fmt, value):
         if self.f:
             self.f.write(struct.pack(fmt, value))
@@ -104,6 +108,11 @@ class BinaryReader:
 
     def ReadBytes(self, count):
         return self.f.read(count)
+
+    def ReadPosition(self):
+        x = self.ReadInt32()
+        y = self.ReadInt32()
+        return {'x': x, 'y': y}
 
     def ReadString(self):
         length = self.ReadUInt16()

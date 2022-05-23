@@ -5,10 +5,13 @@ import threading
 
 from flask import Flask, jsonify, request
 from time import time, sleep
+from uuid import uuid4
 
-from chain import *
-from wallet import *
-from transaction import *
+from blockchain.chain import *
+from blockchain.transaction import *
+
+from account.wallet import *
+from account.inventory import item
 
 blockchain = chain()
 blockchain.options['name'] = 'mainnet'
@@ -80,9 +83,12 @@ def route_wallet_inventory(address):
     return jsonify(wallet.inventory(chain=blockchain, address=address))
 
 def test_transactions():
+    sleep(2)
+    print('blockchain :: testing transactions...')
+
     # initialize wallets from private keys
-    wallet1 = wallet(privateKey='85175d1ce944c01e44afcdbaf49c840cabc72974c741aecfbfa249a41f67b185')
-    wallet2 = wallet(privateKey='9893ea79001d4e24de2616b4e8f5e6d90941123b0147b8c6bda6b2fc70bce9ba')
+    wallet1 = wallet(privateKey='85175d1ce944c01e44afcdbaf49c840cabc72974c741aecfbfa249a41f67b185', chain=blockchain)
+    wallet2 = wallet(privateKey='9893ea79001d4e24de2616b4e8f5e6d90941123b0147b8c6bda6b2fc70bce9ba', chain=blockchain)
 
     # mine genesis block and send 1.000.000 gold to wallet1
     tx = transaction(sender='genesis', recipient=wallet1.address, data={
@@ -92,7 +98,11 @@ def test_transactions():
     })
     
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
+
+    if response['success']:
+        print('\ntest transactions :: mined genesis block and sent 1.000.000 gold to wallet1')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
 
     # create test transactions after genesis block is mined and coinbase is created
     sleep(blockchain.options['create_block_every'] + 1)
@@ -106,9 +116,13 @@ def test_transactions():
 
     tx.publicKey = wallet1.publicKey
     tx.signature = wallet1.sign(tx.message())
-
+    
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
+
+    if response['success']:
+        print('\ntest transactions :: sent 550.000 gold from wallet1 to wallet2')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
 
     # send 200.000 gold from wallet1 to wallet2
     tx = transaction(sender=wallet1.address, recipient=wallet2.address, data={
@@ -121,7 +135,11 @@ def test_transactions():
     tx.signature = wallet1.sign(tx.message())
     
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
+    
+    if response['success']:
+        print('\ntest transactions :: sent 200.000 gold from wallet1 to wallet2')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
 
     # create some more test transactions after wallet_test2 receives the first transaction
     sleep(blockchain.options['create_block_every'] + 1)
@@ -137,7 +155,11 @@ def test_transactions():
     tx.signature = wallet2.sign(tx.message())
 
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
+
+    if response['success']:
+        print('\ntest transactions :: sent 153.293 gold from wallet2 to wallet1')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
 
     # send 200.000 gold from wallet2 to wallet1
     tx = transaction(sender=wallet2.address, recipient=wallet1.address, data={
@@ -150,8 +172,11 @@ def test_transactions():
     tx.signature = wallet2.sign(tx.message())
 
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
 
+    if response['success']:
+        print('\ntest transactions :: sent 200.000 gold from wallet2 to wallet1')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
 
     # generate 1.000 cash and send it to wallet1
     tx = transaction(sender='genesis', recipient=wallet1.address, data={
@@ -161,9 +186,13 @@ def test_transactions():
     })
     
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
 
-    # send 200 cash from wallet1 to wallet 2
+    if response['success']:
+        print('\ntest transactions :: mined 1.000 cash and sent it to wallet1')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
+
+    # send 200 cash from wallet1 to wallet2
     tx = transaction(sender=wallet1.address, recipient=wallet2.address, data={
         'type': 'transfer',
         'entity': 'cash',
@@ -174,54 +203,70 @@ def test_transactions():
     tx.signature = wallet1.sign(tx.message())
 
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
+
+    if response['success']:
+        print('\ntest transactions :: sent 200 cash from wallet1 to wallet2')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
+
+    itemUuid = str(uuid4())
+    itemId = 614
+    itemName = 'Conqueror Dual Sword'
 
     # generate item and send it to wallet1
-    item = {
-        'id': 614, # Conqueror Dual Sword
-        'uid': 'a582d7a7-b47b-47f7-804e-ecab4ee29526', # unique id
-        'source': {
-            'type': 'monster',
-            'id': 64, # Ghoul
-            'localization': 9, # Procyon
-            'timestamp': int(time() * 1000.0)
-        }
-    }
+    itemObj = item(id=itemId, uuid=itemUuid, source={
+        'type': 'monster',
+        'id': 64, # Ghoul
+        'localization': {
+            'zone': 9, # Procyon
+            'x': 144,
+            'y': 291,
+        },
+        'timestamp': int(time() * 1000.0)
+    })
 
     tx = transaction(sender='genesis', recipient=wallet1.address, data={
         'type': 'transfer',
         'entity': 'item',
         'amount': 1,
-        'data': item
+        'data': itemObj.dictify()
     })
 
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
+
+    if response['success']:
+        print('\ntest transactions :: mined item and sent it to wallet1')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
 
     # send the same item to wallet2
-    item = {
-        'id': 614, # Conqueror Dual Sword
-        'uid': 'a582d7a7-b47b-47f7-804e-ecab4ee29526', # unique id
-        'source': {
-            'type': 'player',
-            'id': 1,
-            'localization': 0, # Juno
-            'timestamp': int(time() * 1000.0)
-        }
-    }
-    
+    itemObj = item(id=itemId, uuid=itemUuid, source={
+        'type': 'player',
+        'id': 1,
+        'localization': {
+            'zone': 0, # Juno
+            'x': 644,
+            'y': 201,
+        },
+        'timestamp': int(time() * 1000.0)
+    })
+
     tx = transaction(sender=wallet1.address, recipient=wallet2.address, data={
         'type': 'transfer',
         'entity': 'item',
         'amount': 1,
-        'data': item
+        'data': itemObj.dictify()
     })
 
     tx.publicKey = wallet1.publicKey
     tx.signature = wallet1.sign(tx.message())
 
     response = blockchain.add(type='transaction', data=tx)
-    print(response)
+
+    if response['success']:
+        print('\ntest transactions :: sent item from wallet1 to wallet2')
+        print('Wallet 1', wallet1.assets())
+        print('Wallet 2', wallet2.assets())
 
 def main():
     blockchain.load()
