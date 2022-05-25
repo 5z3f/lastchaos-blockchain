@@ -5,11 +5,11 @@ import json
 
 from time import sleep
 
-from blockchain.block import *
-from account.wallet import *
-from blockchain.transaction import *
-
 from lib.binary import BinaryReader
+
+from blockchain.block import *
+from blockchain.transaction import *
+from account.wallet import *
 
 class chain:
     def __init__(self):
@@ -42,32 +42,14 @@ class chain:
     def load(self):
         files = [f for f in os.listdir(self.blocks_directory) if f.endswith('.bin' if self.options['binary'] else '.json')]
         print('blockchain :: found', len(files), 'blocks')
-        for f in files:
-            fname = f
 
-            if self.options['binary']:
-                try: 
-                    with open(f'{ self.blocks_directory }/{ f }', 'rb') as f:
-                        br = BinaryReader(f)
-                                                
-                        if br.ReadBytes(9) != b'blockdata':
-                            raise Exception('invalid block file, file: ' + fname)
-                        
-                        data = block.read(br).dictify()
-                        self.blocks.append(data)
-                        print(f'blockchain :: loaded { fname } ({ data["index"] + 1 } of { len(files) })')
-                except Exception as e:
-                    print(f'blockchain :: error loading block { fname }: { e }')
-                    continue
-            else:
-                with open(f'{ self.blocks_directory }/{ f }', 'r') as f:
-                    try:
-                        data = json.load(f)
-                        self.blocks.append(data)
-                        print(f'blockchain :: loaded { fname } ({ data["index"] + 1 } of { len(files) })')
-                    except Exception as e:
-                        print(f'blockchain :: error loading block { fname }: { e }')
-                        continue
+        for file in files:
+            try:
+                nBlock = block.read(fileName=f'{ self.blocks_directory }/{ file }', binary=self.options['binary'])
+                self.blocks.append(nBlock.dictify())
+                print(f'blockchain :: loaded { file } ({ nBlock.index + 1 } of { len(files) })')
+            except Exception as e:
+                print(f'blockchain :: error loading block { file }: { e }')
 
     def find(self, type, id):
         match type:
@@ -97,15 +79,8 @@ class chain:
                 # append block to chain
                 self.blocks.append(newBlock.dictify())
 
-                if self.options['binary']:
-                    # save block to file as binary
-                    with open(f'./blocks/{ newBlock.index }.bin', 'wb') as f:
-                        blockBytes = bytes(newBlock)
-                        f.write(blockBytes)
-                else:
-                    # save block to file as json
-                    with open(f'./blocks/{ newBlock.index }.json', 'w') as f:
-                        json.dump(newBlock.dictify(), f, indent=4)
+                # save block to file
+                newBlock.save(blockDirectory=self.blocks_directory, binary=self.options['binary'])
 
                 # empty current transactions
                 self.current_transactions = []

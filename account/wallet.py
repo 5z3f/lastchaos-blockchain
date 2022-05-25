@@ -14,7 +14,7 @@ class wallet:
         self.chain = chain
 
         self.portfolio = {
-            'currencies': {
+            'currency': {
                 'gold': 0,
                 'cash': 0
             },
@@ -25,7 +25,7 @@ class wallet:
         return f"{ self.privateKey }:{ self.publicKey }:{ self.address }"
 
     def assets(self):
-        self.portfolio['currencies'] = wallet.balance(chain=self.chain, address=self.address)
+        self.portfolio['currency'] = wallet.balance(chain=self.chain, address=self.address)
         self.portfolio['inventory'] = wallet.inventory(chain=self.chain, address=self.address)
         return self.portfolio
 
@@ -93,24 +93,24 @@ class wallet:
 
     @staticmethod
     def balance(chain, address):
-        currencies = {
+        currency = {
             'gold': 0,
             'cash': 0
         }
 
         if address == 'genesis':
-            return currencies
+            return currency
 
         txs = wallet.search(chain, address, 'transfer')
 
         for tx in txs:
-            if tx['data']['entity'] in currencies.keys():
+            if tx['data']['entity'] in currency.keys():
                 if tx['sender'] == address:
-                    currencies[tx['data']['entity']] -= tx['data']['amount']
+                    currency[tx['data']['entity']] -= tx['data']['amount']
                 elif tx['recipient'] == address:
-                    currencies[tx['data']['entity']] += tx['data']['amount']
+                    currency[tx['data']['entity']] += tx['data']['amount']
 
-        return currencies
+        return currency
 
     @staticmethod
     def inventory(chain, address):

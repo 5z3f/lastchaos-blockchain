@@ -5,7 +5,8 @@ import json
 from time import time
 from hashlib import sha256
 
-from lib.binary import BinaryWriter
+from lib.binary import BinaryReader, BinaryWriter
+
 from blockchain.transaction import *
 
 class block:
@@ -35,21 +36,41 @@ class block:
         return bytes(bw)
     
     @staticmethod
-    def read(br):
-        index = br.ReadInt32()
-        prevhash = br.ReadString()
-        hash = br.ReadString()
-        proof = br.ReadInt32()
-        txCount = br.ReadInt32()
+    def read(fileName, binary):
+        if binary:
+            with open(fileName, 'rb') as f:
+                br = BinaryReader(f)
+                                                
+                if br.ReadBytes(9) != b'blockdata':
+                    raise Exception(f'blockchain :: block file is not a valid block')
+                        
+                index = br.ReadInt32()
+                prevhash = br.ReadString()
+                hash = br.ReadString()
+                proof = br.ReadInt32()
+                txCount = br.ReadInt32()
 
-        txs = []
-        for i in range(txCount):
-            tx = transaction.read(br).dictify()
-            txs.append(tx)
+                txs = []
+                for _ in range(txCount):
+                    tx = transaction.read(br)
+                    txs.append(tx.dictify())
 
-        timestamp = br.ReadInt64()
+                timestamp = br.ReadInt64()
 
-        return block(index, prevhash, txs, timestamp, proof, hash)
+            return block(index, prevhash, txs, timestamp, proof, hash)
+        else:
+            with open(fileName, 'r') as f:
+                data = json.load(f)
+            
+            return block(**data)
+
+    def save(self, blockDirectory, binary=False):
+        if binary:
+            with open(f'{ blockDirectory }/block_{ self.index }.bin', 'wb') as f:
+                f.write(bytes(self))
+        else:
+            with open(f'{ blockDirectory }/block_{ self.index }.json', 'w') as f:
+                json.dump(self.dictify(), f, indent=4)
 
     def generate_hash(self):
         hash = sha256(self.__str__().encode()).hexdigest()

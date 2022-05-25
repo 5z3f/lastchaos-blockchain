@@ -214,3 +214,32 @@ get all items in the inventory for given address
   // ...
 ]
 ```
+
+### `GET /wallet/<address>/assets`
+show all assets assigned to given address
+
+##### response
+```json
+{
+  "currency": {
+    "gold": 396707,
+    "cash": 200
+  },
+  "inventory": [
+    {
+      "id": 614,
+      "uuid": "d46ff7d6-cd96-4416-b57c-c29899a4a592",
+      "source": {
+        "type": "player",
+        "id": 1,
+        "localization": {
+          "zone": 0,
+          "x": 644,
+          "y": 201
+        },
+        "timestamp": 1653298314107
+      }
+    }
+  ]
+}
+```

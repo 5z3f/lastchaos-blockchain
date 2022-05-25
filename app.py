@@ -82,6 +82,10 @@ def route_wallet_balance(address):
 def route_wallet_inventory(address):
     return jsonify(wallet.inventory(chain=blockchain, address=address))
 
+@app.route('/wallet/<address>/assets', methods=['GET'])
+def route_wallet_assets(address):
+    return jsonify({ 'currency': wallet.balance(chain=blockchain, address=address), 'inventory': wallet.inventory(chain=blockchain, address=address) })
+
 def test_transactions():
     sleep(2)
     print('blockchain :: testing transactions...')
