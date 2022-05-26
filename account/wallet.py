@@ -71,25 +71,25 @@ class wallet:
 
     @staticmethod
     def search(chain, address, type=None):
-        transactions = []
+        txs = []
 
         if address == 'genesis':
-            return transactions
+            return txs
 
         # iterate through all blocks in the chain
         for block in chain.blocks:
-            for tx in block['transactions']:
-                if tx['sender'] == address or tx['recipient'] == address:
-                    if tx['data']['type'] == type or type is None:
-                        transactions.append(tx)
+            for tx in block.transactions:
+                if tx.sender == address or tx.recipient == address:
+                    if tx.data['type'] == type or type is None:
+                        txs.append(tx)
 
         # iterate through all pending transactions
         for tx in chain.current_transactions:
-            if tx['sender'] == address or tx['recipient'] == address:
-                if tx['data']['type'] == type or type is None:
-                    transactions.append(tx)
+            if tx.sender == address or tx.recipient == address:
+                if tx.data['type'] == type or type is None:
+                    txs.append(tx)
 
-        return transactions
+        return txs
 
     @staticmethod
     def balance(chain, address):
@@ -104,11 +104,11 @@ class wallet:
         txs = wallet.search(chain, address, 'transfer')
 
         for tx in txs:
-            if tx['data']['entity'] in currency.keys():
-                if tx['sender'] == address:
-                    currency[tx['data']['entity']] -= tx['data']['amount']
-                elif tx['recipient'] == address:
-                    currency[tx['data']['entity']] += tx['data']['amount']
+            if tx.data['entity'] in currency.keys():
+                if tx.sender == address:
+                    currency[tx.data['entity']] -= tx.data['amount']
+                elif tx.recipient == address:
+                    currency[tx.data['entity']] += tx.data['amount']
 
         return currency
 
@@ -119,11 +119,11 @@ class wallet:
         txs = wallet.search(chain, address, 'transfer')
 
         for tx in txs:
-            txData = tx['data']
-            if tx['data']['entity'] == 'item':
-                if tx['recipient'] == address:
+            txData = tx.data
+            if txData['entity'] == 'item':
+                if tx.recipient == address:
                     inventory.append(txData['data'])
-                elif tx['sender'] == address:
+                elif tx.sender == address:
                     for item in inventory:
                         if item['uuid'] == txData['data']['uuid']:
                             inventory.remove(item)

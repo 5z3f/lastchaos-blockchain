@@ -3,9 +3,11 @@ __author__          = 'agsvn'
 import sys
 import threading
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from time import time, sleep
 from uuid import uuid4
+
+from lib.util import *
 
 from blockchain.chain import *
 from blockchain.transaction import *
@@ -18,11 +20,34 @@ blockchain.options['name'] = 'mainnet'
 blockchain.options['create_block_every'] = 10 # s
 blockchain.options['binary'] = True
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='./frontend')
 
 @app.route('/')
 def route_app():
-    return jsonify({ "title": "LastChaos Blockchain!" })
+
+    blocks = []
+    for block in blockchain.blocks:
+        blocks.append(block.dictify())
+
+    blocks.sort(key=lambda k : k['index'], reverse=True)
+
+    txs = []
+    holders = []
+    for nblock in blockchain.blocks:
+        for tx in nblock.transactions:
+            if tx.sender not in holders and tx.sender != 'genesis':
+                holders.append(tx.sender)
+            if tx.recipient not in holders and tx.recipient != 'genesis':
+                holders.append(tx.recipient)
+            txs.append(tx.dictify())
+
+    blockchain_stats = {
+        'blocks': len(blockchain.blocks),
+        'transactions': len(txs),
+        'holders': len(holders)
+    }
+
+    return render_template('index.html', transactions=txs[::-1][:5], blocks=blocks[:5], stats=blockchain_stats, format_number=util.format_number, pretty_date=util.pretty_date, len=len)
 
 @app.route('/chain', methods=['GET'])
 def route_chain():
@@ -45,10 +70,14 @@ def route_tx(txid):
 
 @app.route('/tx/pending')
 def route_unconfirmed_transactions():
+    txs = []
+    for tx in blockchain.current_transactions:
+        txs.append(tx.dictify())
+
     return {
         'message': f'Will be included in the next block',
         'blockId': blockchain.nextBlockId(),
-        'transactions': blockchain.current_transactions
+        'transactions': txs
     }
 
 @app.route('/tx/add', methods=['POST'])

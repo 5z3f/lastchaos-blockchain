@@ -46,7 +46,7 @@ class chain:
         for file in files:
             try:
                 nBlock = block.read(fileName=f'{ self.blocks_directory }/{ file }', binary=self.options['binary'])
-                self.blocks.append(nBlock.dictify())
+                self.blocks.append(nBlock)
                 print(f'blockchain :: loaded { file } ({ nBlock.index + 1 } of { len(files) })')
             except Exception as e:
                 print(f'blockchain :: error loading block { file }: { e }')
@@ -68,7 +68,7 @@ class chain:
         match type:
             case 'block':
                 # previous block
-                previous_block_hash = block(**self.blocks[-1]).hash if len(self.blocks) > 0 else '0'
+                previous_block_hash = self.blocks[-1].hash if len(self.blocks) > 0 else '0'
 
                 # create block
                 newBlock = block(index=len(self.blocks), prevhash=previous_block_hash, transactions=self.current_transactions)
@@ -77,7 +77,7 @@ class chain:
                 newBlock.generate_hash()
 
                 # append block to chain
-                self.blocks.append(newBlock.dictify())
+                self.blocks.append(newBlock)
 
                 # save block to file
                 newBlock.save(blockDirectory=self.blocks_directory, binary=self.options['binary'])
@@ -110,13 +110,13 @@ class chain:
                             if not wallet.hasItem(chain=self, address=tx.sender, uuid=tx.data['data']['uuid']):
                                 return { 'success': False, 'message': 'could not verify transaction (sender does not have that item)' }
                 
-                self.current_transactions.append(tx.dictify())
+                self.current_transactions.append(tx)
                 return { 'success': True, 'message': 'transaction added', 'tx': tx.dictify() }
     
     def validate(self):
         for i in range(1, len(self.blocks)):
-            previousBlock = block(**self.blocks[i - 1])
-            currentBlock = block(**self.blocks[i])
+            previousBlock = self.blocks[i - 1]
+            currentBlock = self.blocks[i]
             
             currentBlockHash = sha256(str(currentBlock).encode()).hexdigest()
             if (currentBlock.prevhash != previousBlock.hash) or (currentBlock.hash != currentBlockHash):
@@ -124,10 +124,19 @@ class chain:
         return True
 
     def dictify(self):
+
+        blocks = []
+        for nblock in self.blocks:
+            blocks.append(nblock.dictify())
+
+        txs = []
+        for tx in self.current_transactions:
+            txs.append(tx.dictify())      
+
         return {
             'name': self.options['name'],
             'valid': self.validate(),
             'block_mined_every': self.options['create_block_every'],
-            'txs_pending': self.current_transactions,
-            'blocks': self.blocks
+            'txs_pending': txs,
+            'blocks': blocks
         }

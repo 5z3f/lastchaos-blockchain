@@ -11,6 +11,12 @@
   - check for currency balance (gold, cash) and inventory items
 
 # Routes
+### `GET /`
+simple blockchain explorer
+
+##### preview
+![preview](https://user-images.githubusercontent.com/39301116/170417837-67cd0980-6b35-474b-afa0-343bba1a67cb.png)
+
 ### `GET /chain`
 get whole chain
 

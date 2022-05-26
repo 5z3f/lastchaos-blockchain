@@ -19,7 +19,10 @@ class block:
         self.timestamp = timestamp or int(time() * 1000.0)
 
     def __str__(self):
-        return f"{ self.index }:{ self.prevhash }:{ json.dumps(self.transactions) }:{ self.timestamp }:{ self.proof }"
+        txs = []
+        for tx in self.transactions:
+            txs.append(tx.dictify())
+        return f"{ self.index }:{ self.prevhash }:{ json.dumps(txs) }:{ self.timestamp }:{ self.proof }"
 
     def __bytes__(self):
         bw = BinaryWriter()
@@ -30,7 +33,7 @@ class block:
         bw.WriteInt32(self.proof)
         bw.WriteInt32(len(self.transactions))
         for tx in self.transactions:
-            txBytes = bytes(transaction(**tx))
+            txBytes = bytes(tx)
             bw.WriteBytes(txBytes)
         bw.WriteInt64(self.timestamp)
         return bytes(bw)
@@ -53,7 +56,7 @@ class block:
                 txs = []
                 for _ in range(txCount):
                     tx = transaction.read(br)
-                    txs.append(tx.dictify())
+                    txs.append(tx)
 
                 timestamp = br.ReadInt64()
 
@@ -66,10 +69,10 @@ class block:
 
     def save(self, blockDirectory, binary=False):
         if binary:
-            with open(f'{ blockDirectory }/block_{ self.index }.bin', 'wb') as f:
+            with open(f'{ blockDirectory }/block{ self.index }.bin', 'wb') as f:
                 f.write(bytes(self))
         else:
-            with open(f'{ blockDirectory }/block_{ self.index }.json', 'w') as f:
+            with open(f'{ blockDirectory }/block{ self.index }.json', 'w') as f:
                 json.dump(self.dictify(), f, indent=4)
 
     def generate_hash(self):
@@ -84,11 +87,16 @@ class block:
         return (self.proof, hash)
 
     def dictify(self):
+
+        txs = []
+        for tx in self.transactions:
+            txs.append(tx.dictify())
+
         return {
             'index': self.index,
             'prevhash': self.prevhash,
             'hash': self.hash,
             'proof': self.proof,
-            'transactions': self.transactions,
+            'transactions': txs,
             'timestamp': self.timestamp
         }
