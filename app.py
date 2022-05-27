@@ -39,7 +39,10 @@ def route_app():
                 holders.append(tx.sender)
             if tx.recipient not in holders and tx.recipient != 'genesis':
                 holders.append(tx.recipient)
-            txs.append(tx.dictify())
+            
+            ntx = tx.dictify()
+            ntx['block'] = nblock.index
+            txs.append(ntx)
 
     blockchain_stats = {
         'blocks': len(blockchain.blocks),
@@ -47,7 +50,7 @@ def route_app():
         'holders': len(holders)
     }
 
-    return render_template('index.html', transactions=txs[::-1][:5], blocks=blocks[:5], stats=blockchain_stats, format_number=util.format_number, pretty_date=util.pretty_date, len=len)
+    return render_template('index.html', transactions=txs[::-1][:5], blocks=blocks[:5], stats=blockchain_stats, format_number=util.format_number, pretty_date=util.pretty_date, len=len, dumps=json.dumps)
 
 @app.route('/chain', methods=['GET'])
 def route_chain():

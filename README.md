@@ -15,7 +15,7 @@
 simple blockchain explorer
 
 ##### preview
-![preview](https://user-images.githubusercontent.com/39301116/170417837-67cd0980-6b35-474b-afa0-343bba1a67cb.png)
+![preview](https://user-images.githubusercontent.com/39301116/170767844-a7be53f0-b8e8-4d20-b962-1a8719fd405c.png)
 
 ### `GET /chain`
 get whole chain
