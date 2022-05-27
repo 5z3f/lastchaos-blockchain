@@ -133,7 +133,7 @@ def test_transactions():
     response = blockchain.add(type='transaction', data=tx)
 
     if response['success']:
-        print('\ntest transactions :: mined genesis block and sent 1.000.000 gold to wallet1')
+        print('\ntest transactions :: mined genesis block and sent 1.000.000 gold (genesis >> wallet1)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 
@@ -147,13 +147,11 @@ def test_transactions():
         'amount': 550000,
     })
 
-    tx.publicKey = wallet1.publicKey
-    tx.signature = wallet1.sign(tx.message())
-    
+    tx.sign(publicKey=wallet1.publicKey, signature=wallet1.sign(tx))
     response = blockchain.add(type='transaction', data=tx)
 
     if response['success']:
-        print('\ntest transactions :: sent 550.000 gold from wallet1 to wallet2')
+        print('\ntest transactions :: sent 550.000 gold (wallet1 >> wallet2)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 
@@ -164,13 +162,11 @@ def test_transactions():
         'amount': 200000,
     })
 
-    tx.publicKey = wallet1.publicKey
-    tx.signature = wallet1.sign(tx.message())
-    
+    tx.sign(publicKey=wallet1.publicKey, signature=wallet1.sign(tx))
     response = blockchain.add(type='transaction', data=tx)
     
     if response['success']:
-        print('\ntest transactions :: sent 200.000 gold from wallet1 to wallet2')
+        print('\ntest transactions :: sent 200.000 gold (wallet1 >> wallet2)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 
@@ -184,13 +180,11 @@ def test_transactions():
         'amount': 153293,
     })
 
-    tx.publicKey = wallet2.publicKey
-    tx.signature = wallet2.sign(tx.message())
-
+    tx.sign(publicKey=wallet2.publicKey, signature=wallet2.sign(tx))
     response = blockchain.add(type='transaction', data=tx)
 
     if response['success']:
-        print('\ntest transactions :: sent 153.293 gold from wallet2 to wallet1')
+        print('\ntest transactions :: sent 153.293 gold (wallet2 >> wallet1)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 
@@ -201,13 +195,11 @@ def test_transactions():
         'amount': 200000
     })
 
-    tx.publicKey = wallet2.publicKey
-    tx.signature = wallet2.sign(tx.message())
-
+    tx.sign(publicKey=wallet2.publicKey, signature=wallet2.sign(tx))
     response = blockchain.add(type='transaction', data=tx)
 
     if response['success']:
-        print('\ntest transactions :: sent 200.000 gold from wallet2 to wallet1')
+        print('\ntest transactions :: sent 200.000 gold (wallet2 >> wallet1)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 
@@ -221,7 +213,7 @@ def test_transactions():
     response = blockchain.add(type='transaction', data=tx)
 
     if response['success']:
-        print('\ntest transactions :: mined 1.000 cash and sent it to wallet1')
+        print('\ntest transactions :: mined 1.000 cash (genesis >> wallet1)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 
@@ -232,21 +224,19 @@ def test_transactions():
         'amount': 200,
     })
 
-    tx.publicKey = wallet1.publicKey
-    tx.signature = wallet1.sign(tx.message())
-
+    tx.sign(publicKey=wallet1.publicKey, signature=wallet1.sign(tx))
     response = blockchain.add(type='transaction', data=tx)
 
     if response['success']:
-        print('\ntest transactions :: sent 200 cash from wallet1 to wallet2')
+        print('\ntest transactions :: sent 200 cash (wallet1 >> wallet2)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 
+    # generate item and send it to wallet1
     itemUuid = str(uuid4())
     itemId = 614
     itemName = 'Conqueror Dual Sword'
 
-    # generate item and send it to wallet1
     itemObj = item(id=itemId, uuid=itemUuid, source={
         'type': 'monster',
         'id': 64, # Ghoul
@@ -268,7 +258,7 @@ def test_transactions():
     response = blockchain.add(type='transaction', data=tx)
 
     if response['success']:
-        print('\ntest transactions :: mined item and sent it to wallet1')
+        print('\ntest transactions :: mined item (genesis >> wallet1)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 
@@ -291,13 +281,11 @@ def test_transactions():
         'data': itemObj.dictify()
     })
 
-    tx.publicKey = wallet1.publicKey
-    tx.signature = wallet1.sign(tx.message())
-
+    tx.sign(publicKey=wallet1.publicKey, signature=wallet1.sign(tx))
     response = blockchain.add(type='transaction', data=tx)
 
     if response['success']:
-        print('\ntest transactions :: sent item from wallet1 to wallet2')
+        print('\ntest transactions :: sent item (wallet1 >> wallet2)')
         print('Wallet 1', wallet1.assets())
         print('Wallet 2', wallet2.assets())
 

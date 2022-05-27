@@ -92,24 +92,26 @@ class chain:
                 tx = data
 
                 if tx.sender != 'genesis':
-                    if not wallet.verify(publicKey=tx.publicKey, signature=tx.signature, message=tx.message()):
-                        return {'success': False, 'message': 'could not verify transaction (invalid signature)' }
+                    if not tx.signed:
+                        return { 'success': False, 'message': 'transaction not signed' }
 
-                    # verify that the sender address matches the address derived with public key
+                    if not wallet.verify(publicKey=tx.publicKey, signature=tx.signature, message=tx.message()):
+                        return { 'success': False, 'message': 'could not verify signature' }
+
                     if wallet.create_address(publicKey=tx.publicKey) != tx.sender:
-                        return {'success': False, 'message': 'could not verify transaction (invalid sender address)' }
+                        return { 'success': False, 'message': 'sender address does not match public key address' }
 
                     if tx.data['type'] == 'transfer':
                         if tx.data['amount'] < 0:
-                            return {'success': False, 'message': 'could not verify transaction (invalid amount)' }
+                            return { 'success': False, 'message': 'invalid amount' }
 
                         if tx.data['entity'] == 'gold' or tx.data['entity'] == 'cash':                            
                             if tx.data['amount'] > wallet.balance(chain=self, address=tx.sender)[tx.data['entity']]:
-                                return {'success': False, 'message': 'could not verify transaction (insufficient funds)' }
+                                return { 'success': False, 'message': 'insufficient funds' }
                         elif tx.data['entity'] == 'item':
                             if not wallet.hasItem(chain=self, address=tx.sender, uuid=tx.data['data']['uuid']):
-                                return { 'success': False, 'message': 'could not verify transaction (sender does not have that item)' }
-                
+                                return { 'success': False, 'message': 'sender does not have item' }
+
                 self.current_transactions.append(tx)
                 return { 'success': True, 'message': 'transaction added', 'tx': tx.dictify() }
     

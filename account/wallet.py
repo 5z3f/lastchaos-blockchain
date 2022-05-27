@@ -1,9 +1,10 @@
 __author__          = 'agsvn'
 
-import json
 import ecdsa
 import hashlib
 import base58
+
+from blockchain.transaction import *
 
 class wallet:
     def __init__(self, privateKey, chain=None):
@@ -54,9 +55,12 @@ class wallet:
 
         return 'lc' + base58.b58encode(bytes(bytearray.fromhex(keyhash + checksum))).decode('utf-8')
     
-    def sign(self, message):
+    def sign(self, data):
+        if type(data) is transaction:
+            data = data.message()
+
         sk = ecdsa.SigningKey.from_string(bytes.fromhex(self.privateKey), curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256)
-        messageHash = hashlib.sha256(message.encode()).hexdigest()
+        messageHash = hashlib.sha256(data.encode()).hexdigest()
         signature = sk.sign(messageHash.encode(), hashfunc=hashlib.sha256).hex()
         return signature
 

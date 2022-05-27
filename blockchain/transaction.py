@@ -5,6 +5,7 @@ import random
 
 from time import time
 from hashlib import sha256
+
 from lib.binary import BinaryWriter
 
 class transaction:
@@ -42,10 +43,18 @@ class transaction:
         timestamp = br.ReadInt64()
         return transaction(sender, recipient, data, publicKey, signature, timestamp, txid)
 
+    @property
+    def signed(self):
+        return self.signature != ''
+
+    def sign(self, publicKey, signature):
+        self.publicKey = publicKey
+        self.signature = signature
+
     def message(self):
         return f"{ self.sender }:{ self.recipient }:{ json.dumps(self.data) }"
     
-    def dictify(self):            
+    def dictify(self):
         return {
             'txid': self.txid,
             'sender': self.sender,

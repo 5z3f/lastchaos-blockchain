@@ -65,6 +65,7 @@ class block:
             with open(fileName, 'r') as f:
                 data = json.load(f)
             
+            data['transactions'] = [ transaction(**tx) for tx in data['transactions'] ]
             return block(**data)
 
     def save(self, blockDirectory, binary=False):
